@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>📡 实时监测</title>
+
+    <!-- Element-UI 样式 -->
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <!-- Vue -->
+    <script src="../static/vue.js"></script>
+    <!-- Element-UI -->
+    <script src="../static/element-ui/lib/index.js"></script>
+    <!-- Axios（虽然这里暂未使用，保持统一） -->
+    <script src="../static/axios/dist/axios.js"></script>
+
+    <style>
+        /* ===== 页面整体背景：蓝色莫兰迪 ===== */
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #eaf1f9, #f6f9fc);
+            font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #475569;
+        }
+
+        /* ===== 主卡片 ===== */
+        .realtime-card {
+            width: 820px;
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 34px 36px 30px;
+            box-shadow: 0 18px 40px rgba(30, 58, 138, 0.12);
+            text-align: center;
+        }
+
+        /* ===== 标题 ===== */
+        .title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 22px;
+        }
+
+        /* ===== 摄像头画面 ===== */
+        .camera-box {
+            margin: 22px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f1f5fa;
+            min-height: 260px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .camera-box img {
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* ===== 按钮区域 ===== */
+        .btn-group {
+            margin-top: 20px;
+        }
+
+        .el-button {
+            border-radius: 12px;
+            padding: 12px 26px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* ===== 状态提示 ===== */
+        .status-text {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+    <div class="realtime-card">
+        <!-- 标题 -->
+        <div class="title">📡 实时监测</div>
+        <div class="subtitle">摄像头目标检测 · 实时分析中 👀</div>
+
+        <!-- 摄像头画面 -->
+        <div class="camera-box">
+            <img
+                v-show="cameraDetectUrl"
+                :src="cameraDetectUrl"
+                alt="camera detect"
+            />
+            <div class="placeholder" v-show="!cameraDetectUrl">
+                暂未开启摄像头
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="btn-group">
+            <el-button
+                v-show="!isOpen"
+                type="primary"
+                @click="cameraDetect">
+                打开摄像头 ▶
+            </el-button>
+
+            <el-button
+                v-show="isOpen"
+                type="danger"
+                @click="cameraDetect">
+                关闭摄像头 ■
+            </el-button>
+        </div>
+
+        <!-- 状态说明 -->
+        <div class="status-text" v-text="statusText"></div>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                isOpen: false,          // 摄像头状态
+                cameraDetectUrl: null,  // 实时检测流地址
+            }
+        },
+        computed: {
+            statusText() {
+                return this.isOpen
+            ? '实时监测中，请保持页面开启'
+            : '点击按钮开始实时检测';
+            }
+        },
+        methods: {
+            /* ===============================
+               摄像头开关逻辑（原逻辑保留）
+            =============================== */
+            cameraDetect() {
+                this.isOpen = !this.isOpen;
+
+                if (this.isOpen) {
+                    this.cameraDetectUrl = "/detectCamera/?isOpen=true";
+                } else {
+                    this.cameraDetectUrl = "/detectCamera/?isOpen=false";
+                    setTimeout(() => {
+                        this.cameraDetectUrl = null;
+                    }, 1500);
+                }
+            },
+
+            /* ===============================
+               占位方法：用于消除 iframe 场景下
+               index.html 顶部按钮的 Vue 报警
+            =============================== */
+            handleLogout() {
+                // 这里不做任何事，仅用于防止 Vue 警告
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- ================= 页面基础配置 ================= -->
+    <meta charset="UTF-8">
+    <title>YOLO Vision Lab</title>
+
+    <!-- ================= favicon ================= -->
+    <link rel="icon" href="../static/img/puppy.ico">
+
+    <!-- ================= 前端依赖 ================= -->
+    <!-- Element-UI 样式 -->
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <!-- Vue 核心 -->
+    <script src="../static/vue.js"></script>
+    <!-- Element-UI 组件 -->
+    <script src="../static/element-ui/lib/index.js"></script>
+    <!-- Axios（后续接口调用用） -->
+    <script src="../static/axios/dist/axios.js"></script>
+
+    <!-- ================= 页面样式 ================= -->
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFFDF8, #FFECEC);
+            font-family: "Helvetica Neue", "PingFang SC", sans-serif;
+        }
+
+        /* ================= 顶部导航栏 ================= */
+        .header {
+            height: 60px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(255, 170, 170, 0.2);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .header-user {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* ================= 主体布局 ================= */
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* ================= 左侧菜单 ================= */
+        .sidebar {
+            width: 200px;
+            background: #ffffff;
+            padding-top: 20px;
+            box-shadow: 2px 0 8px rgba(255, 170, 170, 0.15);
+        }
+
+        /* ================= 右侧内容区 ================= */
+        .content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        /* 右侧卡片容器（iframe 的外壳） */
+        .content-card {
+            background: #ffffff;
+            border-radius: 20px;
+            height: 100%;
+            box-shadow: 0 15px 35px rgba(255, 170, 170, 0.25);
+            overflow: hidden; /* 保证 iframe 不溢出圆角 */
+        }
+
+        /* iframe 本身 */
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+<!-- ================= Vue 应用挂载点 ================= -->
+<div id="app">
+
+    <!-- ================= 顶部状态栏 ================= -->
+    <div class="header">
+        <!-- 系统名称 -->
+        <div class="header-title">
+            YOLO Vision Lab 👀
+        </div>
+
+        <!-- 用户信息 & 退出按钮 -->
+        <div class="header-user">
+             🐈︎ [{ username }]
+            <el-button type="text" style="margin-left: 12px; color: #FF9AA2;" @click="handleLogout">
+                退出
+            </el-button>
+        </div>
+    </div>
+
+    <!-- ================= 主体区域 ================= -->
+    <div class="container">
+
+        <!-- ========== 左侧功能菜单 ========== -->
+        <div class="sidebar">
+            <!--
+                el-menu：Element-UI 菜单组件
+                @select：点击菜单时触发
+            -->
+            <el-menu
+                :default-active="activeMenu"
+                @select="handleMenuSelect"
+                background-color="#ffffff"
+                text-color="#666"
+                active-text-color="#FF9AA2">
+
+                <!-- 欢迎页（默认） -->
+                <el-menu-item index="welcome">
+                    🌸 欢迎页
+                </el-menu-item>
+
+                <el-menu-item index="detect">
+                    🛸 图片检测
+                </el-menu-item>
+
+                <el-menu-item index="record">
+                    📒 检测记录
+                </el-menu-item>
+
+                <el-menu-item index="video">
+                    🎬 视频检测
+                </el-menu-item>
+
+                <el-menu-item index="realtime">
+                    📡 实时监测
+                </el-menu-item>
+            </el-menu>
+        </div>
+
+        <!-- ========== 右侧 iframe 内容区 ========== -->
+        <div class="content">
+            <div class="content-card">
+                <!--
+                    iframe 用于加载不同功能页面
+                    后续只需要改 src 指向的后端路由即可
+                -->
+                <iframe :src="iframeSrc"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= Vue 实例逻辑 ================= -->
+<script>
+    new Vue({
+        el: '#app',
+        delimiters: ['[{', '}]'],
+        data() {
+            return {
+                // 当前登录用户名（来自 login.html 的 sessionStorage）
+                username: '',
+                // 当前激活菜单
+                activeMenu: 'welcome',
+                // iframe 默认页面
+                iframeSrc: '/welcome/'
+            }
+        },
+        mounted() {
+            this.username = sessionStorage.getItem('username') || 'Guest';
+        },
+
+        methods: {
+            // 左侧菜单切换事件
+            handleMenuSelect(key) {
+                this.activeMenu = key
+
+                // 菜单与 iframe 页面映射关系
+                const pageMap = {
+                    welcome: '/welcome/',
+                    detect: '/detect/',
+                    record: '/record/',
+                    video: '/video/',
+                    realtime: '/realtime/'
+                }
+
+                // 切换 iframe 页面
+                this.iframeSrc = pageMap[key]
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

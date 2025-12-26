@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>🎬 视频智能检测</title>
+
+    <style>
+        /* ===== 整体：日系奶油蓝 / 小红书感 ===== */
+        body {
+            margin: 0;
+            background: #f3f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #2f3a45;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 42px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #6b7b8c;
+            margin-bottom: 34px;
+        }
+
+        /* ===== 操作区域：按钮同一行 ===== */
+        .control-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        input[type="file"] {
+            padding: 12px 14px;
+            font-size: 15px;
+            border-radius: 12px;
+            border: 1px solid #d6e0ea;
+            background: #f9fcff;
+            width: 280px;
+        }
+
+        .btn {
+            padding: 12px 26px;
+            font-size: 15px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .upload-btn {
+            background: #8fb3ff;
+            color: #fff;
+        }
+
+        .upload-btn:hover {
+            background: #7aa3ff;
+        }
+
+        .detect-btn {
+            background: #7fd1c7;
+            color: #fff;
+        }
+
+        .detect-btn:hover {
+            background: #6fc2b8;
+        }
+
+        /* ===== 状态说明 ===== */
+        .status-text {
+            margin-top: 14px;
+            font-size: 15px;
+            color: #5b6b7a;
+            text-align: center;
+        }
+
+        /* ===== 视频展示区域：强制居中 ===== */
+        .video-box {
+            margin-top: 36px;
+            padding: 28px;
+            background: #f6f9fc;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .placeholder {
+            font-size: 16px;
+            color: #8a9aaa;
+            padding: 60px 0;
+        }
+
+        .video-box img {
+            max-width: 900px;
+            width: 100%;
+            border-radius: 16px;
+            background: #000;
+            display: none;
+            margin: 0 auto;
+        }
+
+        .hint {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #8b9aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🎬 视频智能检测</h1>
+    <div class="subtitle">
+        上传视频后，系统将逐帧分析并实时展示检测结果
+    </div>
+
+    <!-- 操作区 -->
+    <div class="control-area">
+        <input type="file" id="videoFile" accept="video/*">
+
+        <button class="btn upload-btn" onclick="uploadVideo()">
+            📤 上传视频
+        </button>
+
+        <button class="btn detect-btn" onclick="startDetect()">
+            🎯 开始检测
+        </button>
+    </div>
+
+    <div class="status-text" id="statusText">
+        请选择视频文件开始体验 ✨
+    </div>
+
+    <!-- 视频展示 -->
+    <div class="video-box">
+        <div class="placeholder" id="placeholder">
+            📺 检测结果将在这里显示
+        </div>
+
+        <img id="videoStream" alt="检测结果">
+
+        <div class="hint" id="endHint" style="display:none;">
+            ✨ 检测已完成，可以上传新视频再次体验
+        </div>
+    </div>
+</div>
+
+<script>
+    let uploadedFilePath = null;
+    let detectStarted = false;
+
+    function uploadVideo() {
+        const fileInput = document.getElementById("videoFile");
+        const statusText = document.getElementById("statusText");
+
+        if (!fileInput.files.length) {
+            statusText.innerText = "⚠️ 请先选择一个视频文件";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        statusText.innerText = "📤 视频上传中，请稍候...";
+
+        fetch("/uploadVideo/", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 200) {
+                uploadedFilePath = data.file_path;
+                statusText.innerText = "✅ 上传成功，可以开始检测啦";
+            } else {
+                statusText.innerText = "❌ 上传失败：" + data.msg;
+            }
+        })
+        .catch(() => {
+            statusText.innerText = "❌ 上传失败，请检查服务器";
+        });
+    }
+
+    function startDetect() {
+        const statusText = document.getElementById("statusText");
+        const videoImg = document.getElementById("videoStream");
+        const placeholder = document.getElementById("placeholder");
+        const endHint = document.getElementById("endHint");
+
+        if (!uploadedFilePath) {
+            statusText.innerText = "⚠️ 请先上传视频文件";
+            return;
+        }
+
+        detectStarted = true;
+        placeholder.style.display = "none";
+        endHint.style.display = "none";
+        videoImg.style.display = "block";
+
+        statusText.innerText = "🔍 正在检测中，请保持页面开启...";
+        videoImg.src = `/detectVideo/?file_path=${encodeURIComponent(uploadedFilePath)}`;
+
+        videoImg.onerror = () => {
+            if (detectStarted) {
+                statusText.innerText = "🎉 检测完成";
+                endHint.style.display = "block";
+                detectStarted = false;
+            }
+        };
+    }
+</script>
+
+</body>
+</html>

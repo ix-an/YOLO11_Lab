@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- ================= 页面基础配置 ================= -->
+    <meta charset="UTF-8">
+    <!-- 浏览器标签页标题 -->
+    <title>登录</title>
+
+    <!-- ================= favicon 配置 ================= -->
+    <!--
+        指定网站 favicon（网页标签页左侧小图标）
+        使用本地图标文件，避免浏览器缓存 emoji favicon 的问题
+    -->
+    <link rel="icon" href="../static/img/puppy.ico">
+
+    <!-- ================= 前端依赖引入 ================= -->
+    <!-- Element-UI 样式文件 -->
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <!-- Vue.js 核心库 -->
+    <script src="../static/vue.js"></script>
+    <!-- Element-UI 组件库 -->
+    <script src="../static/element-ui/lib/index.js"></script>
+    <!-- Axios：用于前后端 HTTP 请求 -->
+    <script src="../static/axios/dist/axios.js"></script>
+
+    <!-- ================= 页面样式 ================= -->
+    <style>
+        /* 页面整体布局：水平 + 垂直居中 */
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFFDF8, #FFECEC);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Helvetica Neue", "PingFang SC", sans-serif;
+        }
+
+        /* 登录卡片容器 */
+        .login-box {
+            width: 380px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: 0 15px 35px rgba(255, 170, 170, 0.25);
+            position: relative;
+        }
+
+        /* 系统主标题 */
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        /* 副标题 / 描述信息 */
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 28px;
+        }
+
+        /* 登录按钮样式 */
+        .login-btn {
+            width: 100%;
+            background-color: #FF9AA2;
+            border: none;
+            border-radius: 12px;
+        }
+
+        /* 登录按钮 hover 效果 */
+        .login-btn:hover {
+            background-color: #FF7F8A;
+        }
+
+        /* Element-UI 输入框圆角统一 */
+        .el-input__inner {
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+<!-- ================= Vue 应用挂载点 ================= -->
+<div id="app">
+    <!-- 登录卡片 -->
+    <div class="login-box">
+        <!-- 系统名称 -->
+        <div class="title">YOLO Vision Lab 👀</div>
+        <!-- 系统简介 -->
+        <div class="subtitle">目标检测 & 多模态智能分析</div>
+
+        <!-- ================= 登录表单 ================= -->
+        <!--
+            el-form：Element-UI 表单组件
+            :model="loginForm" 绑定 Vue 中的数据对象
+        -->
+        <el-form :model="loginForm">
+
+            <!-- 用户名输入框 -->
+            <el-form-item>
+                <el-input
+                        v-model="loginForm.username"
+                        placeholder="用户名 / Username"
+                        prefix-icon="el-icon-user">
+                </el-input>
+            </el-form-item>
+
+            <!-- 密码输入框 -->
+            <el-form-item>
+                <el-input
+                        v-model="loginForm.password"
+                        type="password"
+                        placeholder="密码 / Password"
+                        prefix-icon="el-icon-lock"
+                        show-password>
+                </el-input>
+            </el-form-item>
+
+            <!-- 登录按钮 -->
+            <el-form-item>
+                <el-button
+                        type="primary"
+                        class="login-btn"
+                        @click="handleLogin">
+                    登录 Login ✨
+                </el-button>
+            </el-form-item>
+
+        </el-form>
+    </div>
+</div>
+
+<!-- ================= Vue 实例逻辑 ================= -->
+<script>
+    new Vue({
+        // 绑定 Vue 管理的 DOM 范围
+        el: '#app',
+
+        // 页面数据模型
+        data() {
+            return {
+                // 登录表单数据
+                loginForm: {
+                    username: '',
+                    password: ''
+                }
+            }
+        },
+
+        // 页面方法定义
+        methods: {
+            handleLogin() {
+                let _this = this
+                axios({
+                    url: '/login/',
+                    method: 'post',
+                    // Axios 传对象即可，不必 JSON.stringify，也不必手写 Content-Type
+                    data: _this.loginForm,  // Axios 自动转 json、加content-type、处理响应
+                }).then(res => {
+                    console.log(res.data.status, typeof res.data.status)
+                    // status==200，登陆成功，跳转到首页，否则提示失败
+                    let status = res.data.status;
+                    let msg = res.data.msg;
+                    // 三个等号：值相等，类型也得相同
+                    if (status === 200) {
+                        // 登录成功提示
+                        _this.$message.success(msg)
+
+                        // 存储当前用户名
+                        sessionStorage.setItem('username', _this.loginForm.username)
+
+                        // 延时跳转到主页面
+                        setTimeout(() => {
+                            window.location.href = '/index/'
+                        }, 800)
+                    } else {
+                        // 登录失败提示
+                        _this.$message.error(msg)
+                    }
+                })
+            }
+
+
+        }
+    })
+</script>
+</body>
+</html>

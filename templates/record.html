@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>📒 检测记录</title>
+
+    <!-- element-ui 样式 -->
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <!-- vue -->
+    <script src="../static/vue.js"></script>
+    <!-- element-ui -->
+    <script src="../static/element-ui/lib/index.js"></script>
+    <!-- axios -->
+    <script src="../static/axios/dist/axios.js"></script>
+
+    <style>
+        /* ===== 页面整体背景（蓝色莫兰迪） ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #eef3f8; /* 冷静灰蓝 */
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #475569;
+        }
+
+        /* ===== 页面容器（放宽，不挤表格） ===== */
+        .page-container {
+            width: 95%;              /* 放宽 */
+            max-width: 1600px;       /* 适合大屏 */
+            margin: 28px auto;
+            padding: 26px 28px 30px;
+            background: #f9fbfd;     /* 雾白蓝 */
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.08);
+        }
+
+        /* ===== 标题 ===== */
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-desc {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 22px;
+        }
+
+        /* ===== 表格整体 ===== */
+        .el-table {
+            border-radius: 14px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .el-table th {
+            background: #f1f5fa;  /* 表头浅蓝灰 */
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .el-table td {
+            padding: 12px 0;
+        }
+
+        /* hover 更干净 */
+        .el-table--enable-row-hover .el-table__body tr:hover > td {
+            background-color: #eaf1f9;
+        }
+
+        /* ===== 表格图片 ===== */
+        .table-img {
+            height: 130px;
+            width: 90%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        /* ===== 分页 ===== */
+        .pagination-wrap {
+            margin-top: 26px;
+        }
+
+        .el-pagination {
+            font-size: 14px;
+        }
+
+        .el-pager li.active {
+            background-color: #dbeafe;
+            color: #1e3a8a;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+    <div class="page-container">
+
+        <div class="page-title">
+            📒 检测记录
+        </div>
+        <div class="page-desc">
+            记录你的每一次检测结果，支持回看与对比分析
+        </div>
+
+        <el-table :data="tableData" stripe style="width: 100%">
+            <el-table-column prop="id" label="ID" width="50" align="center"></el-table-column>
+
+            <el-table-column label="原图" width="300" align="center">
+                <template slot-scope="scope">
+                    <img
+                        :src="'/' + scope.row.originUrl"
+                        class="table-img"
+                        alt="图片不存在"
+                    />
+                </template>
+            </el-table-column>
+
+            <el-table-column label="结果" width="300" align="center">
+                <template slot-scope="scope">
+                    <img
+                        :src="'/' + scope.row.resultUrl"
+                        class="table-img"
+                        alt="图片不存在"
+                    />
+                </template>
+            </el-table-column>
+
+            <el-table-column prop="conf" label="平均置信度" width="110" align="center"></el-table-column>
+            <el-table-column prop="classesNumber" label="结果统计" width="350" align="center"></el-table-column>
+            <el-table-column prop="username" label="检测用户" width="100" align="center"></el-table-column>
+            <el-table-column prop="createTime" label="检测时间" align="center"></el-table-column>
+        </el-table>
+
+        <center class="pagination-wrap">
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="page"
+                :page-sizes="[5, 10, 20]"
+                :page-size="size"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+            </el-pagination>
+        </center>
+
+    </div>
+</div>
+
+<!-- Vue 逻辑（完全未修改） -->
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                tableData: [],
+                page: 1,
+                size: 5,
+                total: 0,
+            }
+        },
+        methods:{
+            loadTableData() {
+                axios({
+                    method: "get",
+                    url: "/queryRecords/",
+                    params: {
+                        page: this.page,
+                        size: this.size,
+                        username: sessionStorage.getItem("username")
+                    }
+                }).then(res => {
+                    this.tableData = res.data.data.records;
+                    this.total = res.data.data.total;
+                })
+            },
+            handleSizeChange(val) {
+                this.size = val;
+                this.page = 1;
+                this.loadTableData();
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.loadTableData();
+            }
+        },
+        mounted() {
+            this.loadTableData();
+        },
+    })
+</script>
+</body>
+</html>

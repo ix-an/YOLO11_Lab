@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎使用 YOLO Vision Lab</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #FFFDF8, #FFECEC);
+            font-family: "Helvetica Neue", "PingFang SC", sans-serif;
+        }
+
+        .welcome-container {
+            padding: 50px;
+        }
+
+        /* 顶部欢迎卡片 */
+        .welcome-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 50px;
+            box-shadow: 0 18px 40px rgba(255, 170, 170, 0.25);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 28px; /* 放大字体 */
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .welcome-text {
+            font-size: 18px; /* 放大正文 */
+            color: #666;
+            line-height: 2;
+        }
+
+        /* 功能导航区域 */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        /* 单个功能卡片：长方形样式 */
+        .nav-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(255, 170, 170, 0.25);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left; /* 内容靠左更专业 */
+        }
+
+        .nav-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 40px rgba(255, 150, 150, 0.35);
+        }
+
+        .nav-title {
+            font-size: 20px; /* 放大标题 */
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 12px;
+        }
+
+        .nav-desc {
+            font-size: 15px; /* 放大描述 */
+            color: #777;
+            line-height: 1.8;
+        }
+
+        /* 响应式处理：窄屏两行变一列 */
+        @media (max-width: 900px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="welcome-container">
+
+    <!-- 欢迎说明卡片 -->
+    <div class="welcome-card">
+        <div class="welcome-title">
+            ✨ 欢迎来到 YOLO Vision Lab ✨
+        </div>
+
+        <div class="welcome-text">
+            这是一个基于 <strong>YOLO 目标检测</strong> 的智能视觉分析系统，
+            支持图片、视频以及实时画面的目标检测与分析。<br><br>
+            你可以在这里实现图片目标检测、查看历史检测记录，
+            也可以进行视频检测与实时监测，
+            非常适合 <strong>AI 项目演示 / 学习 / 工程实践</strong> 🌱
+        </div>
+    </div>
+
+    <!-- 功能导航卡片 -->
+    <div class="nav-grid">
+
+        <div class="nav-card" onclick="location.href='/detect/'">
+            <div class="nav-title">🛸 图片检测</div>
+            <div class="nav-desc">
+                上传图片，快速进行目标检测，直观查看模型识别结果。
+            </div>
+        </div>
+
+        <div class="nav-card" onclick="location.href='/record/'">
+            <div class="nav-title">📒 检测记录</div>
+            <div class="nav-desc">
+                查看历史检测结果，方便分析与回溯。
+            </div>
+        </div>
+
+        <div class="nav-card" onclick="location.href='/video/'">
+            <div class="nav-title">🎬 视频检测</div>
+            <div class="nav-desc">
+                对本地视频逐帧分析检测效果，直观可视化。
+            </div>
+        </div>
+
+        <div class="nav-card" onclick="location.href='/realtime/'">
+            <div class="nav-title">📡 实时监测</div>
+            <div class="nav-desc">
+                接入摄像头或视频流，实时展示检测画面。
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
